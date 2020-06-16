@@ -46,6 +46,28 @@ def create():
     return render_template('create.html')
 
 
+@app.route('/<int:post_id>/edit', methods=('GET', 'POST'))
+def edit(post_id):
+    p = get_post(post_id)
+
+    if request.method == 'POST':
+        title = request.form['title']
+        content = request.form['content']
+
+        if not title:
+            flash('Title is required!')
+        else:
+            conn = get_db_connection()
+            conn.execute('UPDATE posts SET title = ?, content = ?'
+                         ' WHERE id = ?',
+                         (title, content, post_id))
+            conn.commit()
+            conn.close()
+            return redirect(url_for('index'))
+
+    return render_template('edit.html', post=p)
+
+
 def get_db_connection():
     conn = sqlite3.connect('database.db')
     conn.row_factory = sqlite3.Row
