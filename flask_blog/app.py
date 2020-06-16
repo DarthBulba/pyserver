@@ -68,6 +68,17 @@ def edit(post_id):
     return render_template('edit.html', post=p)
 
 
+@app.route('/<int:post_id>/delete', methods=('POST',))
+def delete(post_id):
+    p = get_post(post_id)
+    conn = get_db_connection()
+    conn.execute('DELETE FROM posts WHERE id = ?', (post_id,))
+    conn.commit()
+    conn.close()
+    flash('"{}" was successfully deleted!'.format(p['title']))
+    return redirect(url_for('index'))
+
+
 def get_db_connection():
     conn = sqlite3.connect('database.db')
     conn.row_factory = sqlite3.Row
